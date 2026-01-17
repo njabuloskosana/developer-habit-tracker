@@ -26,13 +26,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore
-        run: dotnet restore DevHabit.slnx
+        run: dotnet restore DevHabit.Api/DevHabit.Api.csproj
 
       - name: Build
-        run: dotnet build DevHabit.slnx --configuration Release --no-restore
+        run: dotnet build DevHabit.Api/DevHabit.Api.csproj --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test DevHabit.slnx --configuration Release --no-restore --no-build
+        run: dotnet test DevHabit.Api/DevHabit.Api.csproj --configuration Release --no-restore --no-build
 
       - name: Publish
-        run: dotnet publish DevHabit.slnx --configuration Release --no-restore --no-build
+        run: dotnet publish DevHabit.Api/DevHabit.Api.csproj --configuration Release --no-restore --no-build
