@@ -1,0 +1,26 @@
+services:
+  devhabit.api:
+    image: ${DOCKER_REGISTRY-}devhabitapi
+    build:
+      context: .
+      dockerfile: DevHabit.Api/Dockerfile
+    ports:
+      - "5280:8080"   # HTTP
+      - "7217:8081"   # HTTPS
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      # OpenTelemetry Configuration
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://devhabit.aspire-dashboard:18889
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+
+  devhabit.aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:9.0
+    ports:
+      - "18888:18888"  # Dashboard UI
+      - "18889:18889"  # OTLP endpoint (gRPC)
+    environment:
+      - DASHBOARD__FRONTEND__AUTHMODE=Unsecured  # For dev only!
+      - DASHBOARD__OTLP__AUTHMODE=Unsecured      # For dev only!
