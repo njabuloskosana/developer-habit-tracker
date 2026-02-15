@@ -6,6 +6,8 @@ A RESTful API for tracking and analyzing developer habits, helping developers bu
 
 - **Framework:** ASP.NET Core 9.0
 - **Language:** C# 13
+- **Database:** PostgreSQL 17.2
+- **ORM:** Entity Framework Core 9.0 with Npgsql provider
 - **Observability:** OpenTelemetry (tracing, metrics, logging)
 - **Containerization:** Docker with multi-stage builds
 - **Dashboard:** ASP.NET Aspire Dashboard for observability
@@ -15,7 +17,8 @@ A RESTful API for tracking and analyzing developer habits, helping developers bu
 ### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Docker](https://www.docker.com/products/docker-desktop/) (optional)
+- [Docker](https://www.docker.com/products/docker-desktop/) (recommended - includes PostgreSQL)
+- [PostgreSQL 17+](https://www.postgresql.org/download/) (if running without Docker)
 
 ### Running Locally
 
@@ -24,30 +27,83 @@ A RESTful API for tracking and analyzing developer habits, helping developers bu
 git clone https://github.com/njabuloskosana/developer-habit-tracker.git
 cd developer-habit-tracker
 
-# Run the API
-dotnet run --project DevHabit/DevHabit.Api/DevHabit.Api.csproj
+# Restore dependencies
+dotnet restore DevHabit/DevHabit.slnx
+
+# Build the solution
+dotnet build DevHabit/DevHabit.slnx --configuration Release --no-restore
+
+# Run the API (requires PostgreSQL running locally)
+dotnet run --project DevHabit/DevHabit.Api/DevHabit.Api.csproj --launch-profile http
 ```
 
 The API will be available at `http://localhost:5280`
 
-### Running with Docker
+**Note:** Running locally requires PostgreSQL. Update the connection string in `DevHabit/DevHabit.Api/appsettings.Development.json` to match your local PostgreSQL instance.
+
+### Running with Docker (Recommended)
 
 ```bash
 cd DevHabit
 docker-compose up
 ```
 
-This starts the API along with the Aspire Dashboard for observability at `http://localhost:18888`
+This starts:
+- **DevHabit API** at `http://localhost:5280`
+- **PostgreSQL 17.2** at `localhost:5432`
+- **Aspire Dashboard** (observability) at `http://localhost:18888`
+
+Database migrations are applied automatically on startup in Development mode.
 
 ## Project Structure
 
 ```
 DevHabit/
-├── DevHabit.Api/           # Web API project
-├── Directory.Build.props   # Shared build configuration
-├── Directory.Packages.props # Centralized package management
-└── docker-compose.yml      # Container orchestration
+├── DevHabit.Api/                 # Web API project
+│   ├── Controllers/              # API controllers
+│   ├── Database/                 # EF Core DbContext and configurations
+│   ├── Entities/                 # Domain models
+│   ├── Extentions/               # Extension methods (e.g., migrations)
+│   ├── Migrations/               # EF Core migrations
+│   ├── Program.cs                # Application entry point
+│   └── Dockerfile                # Container build definition
+├── Directory.Build.props         # Shared build configuration
+├── Directory.Packages.props      # Centralized package management
+├── docker-compose.yml            # Container orchestration
+└── global.json                   # .NET SDK version pinning
+docs/
+├── README.md                     # Documentation index
+└── lessons/                      # Step-by-step implementation lessons
+    ├── 00-project-setup.md
+    └── 01-database-and-entity-framework.md
 ```
+
+## Current Implementation Status
+
+✅ **Completed:**
+- ASP.NET Core 9.0 API with C# 13
+- Docker containerization with multi-stage builds
+- OpenTelemetry observability (tracing, metrics, logging)
+- PostgreSQL database integration
+- Entity Framework Core setup with snake_case naming
+- Habit entity with value objects (Frequency, Target, Milestone)
+- Automatic database migrations on startup
+- Custom database schema (`dev_habit`)
+- Aspire Dashboard for local development
+
+🚧 **In Progress:**
+- API endpoints for CRUD operations
+
+📋 **Planned:**
+- User authentication and authorization
+- Repository pattern implementation
+- Entry logging and tracking
+- Goal setting and progress monitoring
+- Tag-based organization
+- Batch operations
+- Advanced querying and filtering
+
+See [docs/lessons](docs/lessons/) for detailed implementation guides.
 
 ## License
 
